@@ -10,7 +10,7 @@
   "content_scripts": [
     {
       "matches": ["*://*.stockbit.com/*"],
-      "js": ["vendor/jquery.slim.min.js", "token.js"]
+      "js": ["vendor/jquery.slim.min.js", "vendor/axios.min.js", "indices.js", "token.js"]
     }
   ],
   "page_action": {
