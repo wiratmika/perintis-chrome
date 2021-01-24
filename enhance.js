@@ -28,43 +28,59 @@ function calculate(holding, price, index, date, capital) {
     };
   });
 
+  let exists = $("#marker").length > 0;
+  const red = "color: rgb(238, 74, 73);";
+  const green = "color: rgb(0, 171, 107);";
+  const black = "color: rgb(51, 51, 51);";
+
   $("#trading-box table:not(.ant-table-fixed)")
     .find("tr")
     .each(function () {
       let currentSymbol = $(this).find("td:first").text();
-      if (!currentSymbol) {
-        $(this).find("th").eq(2).after("<th>Target Lot</th>");
+
+      if (!currentSymbol && !exists) {
+        $(this).find("th").eq(2).after("<th id='marker'>Target Lot</th>");
         $(this).find("th").eq(3).after("<th>Lot Difference</th>");
         $(this).find("th").eq(8).after("<th>Target Value</th>");
         $(this).find("th").eq(9).after("<th>Target Percentage</th>");
-      } else {
-        $(this)
-          .find("td")
-          .eq(2)
-          .after(`<td>${result[currentSymbol].lots}</td>`);
-
+      } else if (currentSymbol) {
         let diff = result[currentSymbol].diff;
-        let color = "";
-        if (diff > 0) {
-          color = ' style="color: rgb(238, 74, 73);"'; // Red
-        } else if (diff < 0) {
-          color = ' style="color: rgb(0, 171, 107);"'; // Green
-        }
-        $(this).find("td").eq(3).after(`<td${color}>${diff}</td>`);
+        let color = black;
 
+        if (diff > 0) {
+          color = red;
+        } else if (diff < 0) {
+          color = green;
+        }
+        let style = ` style="${color}"`;
         let value = result[currentSymbol].value
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        $(this).find("td").eq(8).after(`<td>${value}</td>`);
-
         let percentage =
           Math.round(result[currentSymbol].percentage * 10000) / 100; // Rounding to 2 decimals
-        $(this).find("td").eq(9).after(`<td>${percentage}%</td>`);
+
+        if (exists) {
+          $(this).find("td#lots").text(result[currentSymbol].lots);
+          $(this).find("td#diff").text(diff).attr("style", color);
+          $(this).find("td#value").text(value);
+          $(this).find("td#percentage").text(percentage);
+        } else {
+          $(this)
+            .find("td")
+            .eq(2)
+            .after(`<td id="lots">${result[currentSymbol].lots}</td>`);
+          $(this).find("td").eq(3).after(`<td id="diff"${style}>${diff}</td>`);
+          $(this).find("td").eq(8).after(`<td id="value">${value}</td>`);
+          $(this)
+            .find("td")
+            .eq(9)
+            .after(`<td id="percentage">${percentage}%</td>`);
+        }
       }
     });
 }
 
-function enhance() {
+function fetch() {
   chrome.storage.local.get(["token", "pin"], function (data) {
     headers = {
       "x-pin": data.pin,
@@ -117,14 +133,40 @@ function enhance() {
             price[info[0]] = info[1];
           });
 
-          chrome.storage.local.get("capital", function (data) {
-            calculate(holding, price, "IDX30", "2020-10", data.capital);
-          });
+          chrome.storage.local.set(
+            {
+              cache: {
+                holding,
+                price,
+              },
+            },
+            function () {
+              chrome.storage.local.get("capital", function (data) {
+                calculate(holding, price, "IDX30", "2020-10", data.capital);
+              });
+            }
+          );
         })
       )
       .catch((errors) => {
         console.log(errors);
       });
+  });
+}
+
+function enhance() {
+  chrome.storage.local.get(["cache", "capital"], function (data) {
+    if (!data.cache) {
+      fetch();
+    } else {
+      calculate(
+        data.cache.holding,
+        data.cache.price,
+        "IDX30",
+        "2020-10",
+        data.capital
+      );
+    }
   });
 }
 

@@ -8,6 +8,8 @@ chrome.storage.local.get(["token", "pin"], function (data) {
   }
 });
 
+chrome.storage.local.remove("cache");
+
 $enhanceButton.click(function (element) {
   const capital = $capital.val();
 
