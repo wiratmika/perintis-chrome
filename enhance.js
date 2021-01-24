@@ -39,12 +39,24 @@ function calculate(holding, price, index, date, capital) {
       $(this).find("th").eq(9).after("<th>Target Percentage</th>");
     } else {
       $(this).find("td").eq(2).after(`<td>${result[currentSymbol].lots}</td>`);
-      $(this).find("td").eq(3).after(`<td>${result[currentSymbol].diff}</td>`);
-      $(this).find("td").eq(8).after(`<td>${result[currentSymbol].value}</td>`);
-      $(this)
-        .find("td")
-        .eq(9)
-        .after(`<td>${result[currentSymbol].percentage}</td>`);
+
+      let diff = result[currentSymbol].diff;
+      let color = "";
+      if (diff > 0) {
+        color = ' style="color: rgb(238, 74, 73);"'; // Red
+      } else if (diff < 0) {
+        color = ' style="color: rgb(0, 171, 107);"'; // Green
+      }
+      $(this).find("td").eq(3).after(`<td${color}>${diff}</td>`);
+
+      let value = result[currentSymbol].value
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      $(this).find("td").eq(8).after(`<td>${value}</td>`);
+
+      let percentage =
+        Math.round(result[currentSymbol].percentage * 10000) / 100; // Rounding to 2 decimals
+      $(this).find("td").eq(9).after(`<td>${percentage}%</td>`);
     }
   });
 }
