@@ -3,7 +3,7 @@ function updateToken() {
     const token = atob(localStorage.getItem("at"));
     const pin = window.localStorage.tpt;
 
-    chrome.storage.local.set({ token: token, pin: pin }, function () {
+    chrome.storage.local.set({ token, pin }, function () {
       console.log("Perintis is now configured! You're ready to be rich.");
     });
   }

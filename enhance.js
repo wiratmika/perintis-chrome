@@ -1,5 +1,3 @@
-let $table = $("#trading-box table:not(.ant-table-fixed)");
-
 function calculate(holding, price, index, date, capital) {
   result = {};
   activeIndex = indices[index][date];
@@ -30,35 +28,40 @@ function calculate(holding, price, index, date, capital) {
     };
   });
 
-  $table.find("tr").each(function () {
-    let currentSymbol = $(this).find("td:first").text();
-    if (!currentSymbol) {
-      $(this).find("th").eq(2).after("<th>Target Lot</th>");
-      $(this).find("th").eq(3).after("<th>Lot Difference</th>");
-      $(this).find("th").eq(8).after("<th>Target Value</th>");
-      $(this).find("th").eq(9).after("<th>Target Percentage</th>");
-    } else {
-      $(this).find("td").eq(2).after(`<td>${result[currentSymbol].lots}</td>`);
+  $("#trading-box table:not(.ant-table-fixed)")
+    .find("tr")
+    .each(function () {
+      let currentSymbol = $(this).find("td:first").text();
+      if (!currentSymbol) {
+        $(this).find("th").eq(2).after("<th>Target Lot</th>");
+        $(this).find("th").eq(3).after("<th>Lot Difference</th>");
+        $(this).find("th").eq(8).after("<th>Target Value</th>");
+        $(this).find("th").eq(9).after("<th>Target Percentage</th>");
+      } else {
+        $(this)
+          .find("td")
+          .eq(2)
+          .after(`<td>${result[currentSymbol].lots}</td>`);
 
-      let diff = result[currentSymbol].diff;
-      let color = "";
-      if (diff > 0) {
-        color = ' style="color: rgb(238, 74, 73);"'; // Red
-      } else if (diff < 0) {
-        color = ' style="color: rgb(0, 171, 107);"'; // Green
+        let diff = result[currentSymbol].diff;
+        let color = "";
+        if (diff > 0) {
+          color = ' style="color: rgb(238, 74, 73);"'; // Red
+        } else if (diff < 0) {
+          color = ' style="color: rgb(0, 171, 107);"'; // Green
+        }
+        $(this).find("td").eq(3).after(`<td${color}>${diff}</td>`);
+
+        let value = result[currentSymbol].value
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        $(this).find("td").eq(8).after(`<td>${value}</td>`);
+
+        let percentage =
+          Math.round(result[currentSymbol].percentage * 10000) / 100; // Rounding to 2 decimals
+        $(this).find("td").eq(9).after(`<td>${percentage}%</td>`);
       }
-      $(this).find("td").eq(3).after(`<td${color}>${diff}</td>`);
-
-      let value = result[currentSymbol].value
-        .toString()
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      $(this).find("td").eq(8).after(`<td>${value}</td>`);
-
-      let percentage =
-        Math.round(result[currentSymbol].percentage * 10000) / 100; // Rounding to 2 decimals
-      $(this).find("td").eq(9).after(`<td>${percentage}%</td>`);
-    }
-  });
+    });
 }
 
 function enhance() {
@@ -114,7 +117,9 @@ function enhance() {
             price[info[0]] = info[1];
           });
 
-          calculate(holding, price, "IDX30", "2020-10", 100000000); // TODO: use dynamic values
+          chrome.storage.local.get("capital", function (data) {
+            calculate(holding, price, "IDX30", "2020-10", data.capital);
+          });
         })
       )
       .catch((errors) => {
