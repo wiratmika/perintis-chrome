@@ -57,10 +57,11 @@ function enhance() {
     };
 
     const today = new Date();
+    const dd = String(today.getDate()).padStart(2, "0");
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const yyyy = today.getFullYear();
 
-    const todayDate = `${today.getFullYear()}-${String(
-      today.getMonth() + 1
-    ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const todayDate = `${yyyy}-${mm}-${dd}`;
     const tradeUrl = `https://api.stockbit.com/v2.4/trade/report/trade_activity?start=1970-01-01&end=${todayDate}`;
     const tradeRequest = axios.get(tradeUrl, { headers: headers });
 
