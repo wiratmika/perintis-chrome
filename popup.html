@@ -3,15 +3,33 @@
   <head>
     <meta charset="utf-8">
     <title>Perintis</title>
+    <link rel="stylesheet" href="vendor/uikit.min.css" />
+    <style>
+      #container {
+        padding: 2em 1em 2em 1em;
+        width: 30em;
+        background: rgb(47, 47, 51)
+      }
+    </style>
   <body>
-    <h1>Perintis</h1>
-    <p id="error"></p>
+    <div class="uk-container uk-light" id="container">
+      <h1 class="uk-heading-small">Perintis</h1>
+      <p id="error"></p>
 
-    <input id="capital" type="number" value="100000000" step="1000000"/>
-    <button id="enhance">Enhance Information</button>
+      <div class="uk-margin">
+        <label for="capital">Your Capital</label>
+        <!-- TODO add stepper -->
+        <input class="uk-input" id="capital" type="text"/>
+      </div>
+      <div class="uk-margin">
+        <button class="uk-button uk-button-primary uk-button-small" id="enhance">Enhance Information</button>
+      </div>
+    </div>
 
     <script src="vendor/jquery.slim.min.js"></script>
     <script src="vendor/axios.min.js"></script>
+    <script src="vendor/uikit.min.js"></script>
+    <script src="vendor/uikit-icons.min.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

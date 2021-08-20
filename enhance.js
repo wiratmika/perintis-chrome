@@ -44,37 +44,53 @@ function calculate(holding, price, index, date, capital) {
         $(this).find("th").eq(8).after("<th>Target Value</th>");
         $(this).find("th").eq(9).after("<th>Target Percentage</th>");
       } else if (currentSymbol) {
-        let diff = result[currentSymbol].diff;
-        let color = black;
+        let currentData = result[currentSymbol];
+        let lots;
+        let diff;
+        let color;
+        let value;
+        let percentage;
 
-        if (diff > 0) {
-          color = red;
-        } else if (diff < 0) {
-          color = green;
+        if (!currentData) {
+          lots = "-";
+          diff = "-";
+          color = black;
+          value = "-";
+          percentage = "-";
+        } else {
+          lots = currentData.lots;
+          diff = currentData.diff;
+          color = black;
+
+          if (diff > 0) {
+            color = red;
+          } else if (diff < 0) {
+            color = green;
+          }
+          value = currentData.value
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          percentage = Math.round(currentData.percentage * 10000) / 100; // Rounding to 2 decimals
         }
+
         let style = ` style="${color}"`;
-        let value = result[currentSymbol].value
-          .toString()
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        let percentage =
-          Math.round(result[currentSymbol].percentage * 10000) / 100; // Rounding to 2 decimals
+        let percentageWithSuffix = `${percentage}${
+          percentage === "-" ? "" : "%"
+        }`;
 
         if (exists) {
-          $(this).find("td#lots").text(result[currentSymbol].lots);
+          $(this).find("td#lots").text(lots);
           $(this).find("td#diff").text(diff).attr("style", color);
           $(this).find("td#value").text(value);
-          $(this).find("td#percentage").text(percentage);
+          $(this).find("td#percentage").text(percentageWithSuffix);
         } else {
-          $(this)
-            .find("td")
-            .eq(2)
-            .after(`<td id="lots">${result[currentSymbol].lots}</td>`);
+          $(this).find("td").eq(2).after(`<td id="lots">${lots}</td>`);
           $(this).find("td").eq(3).after(`<td id="diff"${style}>${diff}</td>`);
           $(this).find("td").eq(8).after(`<td id="value">${value}</td>`);
           $(this)
             .find("td")
             .eq(9)
-            .after(`<td id="percentage">${percentage}%</td>`);
+            .after(`<td id="percentage">${percentageWithSuffix}</td>`);
         }
       }
     });
@@ -142,7 +158,7 @@ function fetch() {
             },
             function () {
               chrome.storage.local.get("capital", function (data) {
-                calculate(holding, price, "IDX30", "2020-10", data.capital);
+                calculate(holding, price, "IDX30", "2021-01", data.capital);
               });
             }
           );
@@ -163,7 +179,7 @@ function enhance() {
         data.cache.holding,
         data.cache.price,
         "IDX30",
-        "2020-10",
+        "2021-01",
         data.capital
       );
     }
